@@ -7,10 +7,6 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- mapbox -->
-	<!-- <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js'></script>
-	<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css' rel='stylesheet' /> -->
-
 	<!-- leaflet  -->
 	<link rel="stylesheet" href="css/leaflet.css" />
 	<script src="js/leaflet.js"></script>
@@ -18,13 +14,9 @@
 	<!-- jQuery -->
 	<script src="js/jquery-1.10.2.js"></script>
 
-	<!-- data table -->
-	<!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css"> -->
-	<!-- <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script> -->
-
 	<!-- bootstrap -->
 	<link rel="stylesheet" href="css/bootstrap.min.css">
-
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 	<script src="js/bootstrap.min.js"></script>
 
 	<link rel="stylesheet" href="styles/style.css">
@@ -63,33 +55,40 @@
 	<!-- <div class="row h-100" style="padding-top:56px"> -->
 	<div class="row h-100" >
 		<!-- left side: map -->
-		<div class="col-sm-9 fill no-padding">
+		<div class="col-sm-12 fill no-padding">
 			<div id="map"></div>
 			<!-- <div class='nav-overlay'></div> -->
 		</div>
+	</div>
+</div>
 
-		<!-- right side: data -->
-		<div class="col-sm-3" id="data-panel" style="background-color: white">
-			<div id="info-panel">
-				<img src="images/todokedori.gif">
+<div class="col-sm-2" id="data-panel" style="position: absolute;top:10px;left: 10px;background-color: rgba(255,255,255,0);z-index:999;">
+	<div id="info-panel">
+		<img src="images/todokedori.gif" class="img-thumbnail rounded mx-auto d-block">
+		<br>
+		<table class="table table-striped table-sm" id="data-table" style="background-color:white;">
+			<tr>
+				<th></th>
+				<th></th>
+			</tr>
+		</table>
+		<!-- <table class="table table-sm small-font" id="data-legend">
+			<tr>
+				<th></th>
+				<th></th>
+			</tr>
+		</table> -->
+	</div>
+</div>
 
-				<table class="table table-striped" id="data-table">
-					<tr>
-						<th></th>
-						<th></th>
-					</tr>
-				</table>
-				<table class="table table-sm" id="data-legend">
-					<tr>
-						<th></th>
-						<th></th>
-					</tr>
-				</table>
-
-
-			</div>
-
-		</div>
+<div class="dropdown" style="position:absolute; top:10px;right:80px;z-index:999">
+	<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		地図タイプ
+	</button>
+	<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+		<a class="dropdown-item" href="#" id="basemap-light">白</a>
+		<a class="dropdown-item" href="#" id="basemap-dark">黒</a>
+		<a class="dropdown-item" href="#" id="basemap-satellite">サテライト</a>
 	</div>
 </div>
 

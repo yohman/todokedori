@@ -56,7 +56,14 @@ todokedori.setParameters = function()
 	***/
 
 		// instantiate the map
-		todokedori.map = L.map('map');
+		todokedori.map = L.map('map',{
+			zoomControl: false,
+		});
+
+		//add zoom control with your options
+		L.control.zoom({
+		     position:'topright'
+		}).addTo(todokedori.map);
 
 		// info control
 		todokedori.info = L.control();
@@ -64,60 +71,24 @@ todokedori.setParameters = function()
 		// the geography layer
 		todokedori.mapLayer = L.geoJson();
 
+		todokedori.basemapmapoptions = {
+			maxZoom: 		20,
+			tileSize: 		512,
+			zoomOffset: 	-1,
+			retina: '@2x',
+			detectRetina: true,
+			attribution: 	'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+				'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
+		}
+
 		todokedori.basemaps = [
-			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-				maxZoom: 18,
-				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-					'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-					'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-				id: 'mapbox.streets-satellite'
-			}),
-			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-				maxZoom: 18,
-				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-					'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-					'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-				id: 'mapbox.streets-satellite'
-			}),
-			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-				maxZoom: 18,
-				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-					'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-					'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-				id: 'mapbox.streets-satellite'
-			}),
-			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-				maxZoom: 18,
-				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-					'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-					'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-				id: 'mapbox.streets-satellite'
-			}),
+			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', todokedori.basemapmapoptions),
+			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', todokedori.basemapmapoptions),
+			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', todokedori.basemapmapoptions),
 		]
 		// the basemap
-		todokedori.basemap = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-			maxZoom: 18,
-			detectRetina: true,
-			retina: '@2x',
-			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-				'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-				'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-			id: 'mapbox.streets-satellite'
-		});
-		// todokedori.basemap = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-		// 	maxZoom: 18,
-		// 	attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-		// 		'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-		// 		'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-		// 	id: 'mapbox.streets-satellite'
-		// });
-
-	// 	L.tileLayer(
-	// 'https://api.mapbox.com/styles/v1/mapbox/emerald-v8/tiles/{z}/{x}/{y}?access_token=<your token>', {
-	//     tileSize: 512,
-	//     zoomOffset: -1,
-	//     attribution: '© <a href="https://www.mapbox.com/map-feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-	// }).addTo(mymap);
+		todokedori.basemap = todokedori.basemaps[0]
 
 	/*
 
@@ -146,13 +117,23 @@ todokedori.init = function()
 
 	todokedori.map.setView([37.562979170609964, 140.9949233253293], 12);
 	todokedori.map.addLayer(todokedori.basemap);
-	todokedori.displayLegend();
+	// todokedori.displayLegend();
 	// seed the map
 	todokedori.mapGeoJSON();
 
 	// fit to bounds
-	// todokedori.map.fitBounds(todokedori.mapLayer.getBounds())
+	todokedori.map.fitBounds(todokedori.mapLayer.getBounds())
 
+	// add basemap toggles
+	$('#basemap-light').click(function(){
+		todokedori.changeBaseMap(0)
+	})
+	$('#basemap-dark').click(function(){
+		todokedori.changeBaseMap(1)
+	})
+	$('#basemap-satellite').click(function(){
+		todokedori.changeBaseMap(2)
+	})
 }
 
 
@@ -203,22 +184,23 @@ todokedori.style = function(feature) {
 	if(featurejoin == null)
 	{
 		var cm100 = 0;
+		var color = 'rgba(255,255,255,0)'
 	}
 	else
 	{
 		var cm100 = featurejoin["100cm"];
+		var color = 'rgba(255,255,255,1)'
 	}
 
 	return {
 		fillColor: todokedori.getColor(cm100),
 		weight: 1,
 		opacity: 1,
-		color: todokedori.getColor(cm100),
+		color: color,
 		// dashArray: '1',
 		fillOpacity: 0.7
 	};
 }
-
 
 function objectFindByKey(array, key, value) {
 	for (var i = 0; i < array.length; i++) {
@@ -278,11 +260,7 @@ todokedori.highlightFeature = function(e)
 		// dashArray: 1,
 		fillOpacity: 0.2
 	});
-	//
-	// if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-	// 	todokedori.highlightedData.bringToFront();
-	// }
-	//
+
 	// // display the data
 	todokedori.displayData();
 }
@@ -301,31 +279,35 @@ todokedori.displayLegend = function()
 todokedori.displayData = function()
 {
 	var data = todokedori.highlightedData.data
-	$('#data-table > tbody:last-child').html(
-		'<tr>'
-		+'<td>X</td>'
-		+'<td>'+data.X2+'</td>'
-		+'</tr>'
-		+'<tr>'
-		+'<td>Y</td>'
-		+'<td>'+data.Y2+'</td>'
-		+'</tr>'
-		+'<tr>'
-		+'<td>City</td>'
-		+'<td>'+data["City"]+'</td>'
-		+'</tr>'
-		+'<tr>'
-		+'<td>Date</td>'
-		+'<td>'+data["Date"]+'</td>'
-		+'</tr>'
-		+'<tr>'
-		+'<td>1 cm</td>'
-		+'<td>'+data["1cm"]+'</td>'
-		+'</tr>'
-		+'<tr>'
-		+'<td>1 00cm</td>'
-		+'<td>'+data["100cm"]+'</td>'
-		+'</tr>');
+	console.log(data)
+	if(data !== undefined)
+	{
+		$('#data-table > tbody:last-child').html(
+			'<tr>'
+			+'<td>X-Y</td>'
+			+'<td>'+data.X2+'-'+data.Y2+'</td>'
+			+'</tr>'
+			+'<tr>'
+			+'<td>場所</td>'
+			+'<td>'+data["City"]+'</td>'
+			+'</tr>'
+			+'<tr>'
+			+'<td>測定月</td>'
+			+'<td>'+data["Date"]+'</td>'
+			+'</tr>'
+			+'<tr>'
+			+'<td>1 cm</td>'
+			+'<td>'+data["1cm"]+'　µSv/h</td>'
+			+'</tr>'
+			+'<tr>'
+			+'<td>1 00cm</td>'
+			+'<td>'+data["100cm"]+'　µSv/h</td>'
+			+'</tr>');
+	}
+	else {
+		$('#data-table > tbody:last-child').empty()
+	}
+
 }
 
 todokedori.resetHighlight = function(e) {
