@@ -1,0 +1,128 @@
+/*body { margin:0; padding:0; }*/
+html,body {
+	height: 100%
+}
+
+
+h2, h3 {
+	margin: 10px;
+	font-size: 1.2em;
+}
+h3 {
+	font-size: 1em;
+}
+p {
+	font-size: 0.85em;
+	margin: 10px;
+	text-align: left;
+}
+
+#data-legend td {
+	font-size: 0.7em;
+}
+#map { width:100%; height: 100%;min-height: 100% }
+
+.no-padding{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+/*.nav-overlay {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	background: rgba(255, 255, 255, 0.8);
+	margin-left: 10px;
+	margin-bottom: 10px;
+	font-family: Arial, sans-serif;
+	overflow: auto;
+	border-radius: 3px;
+	z-index: 999;
+	padding: 10px;
+}*/
+
+.map-overlay {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	padding: 10px;
+	background: rgba(255, 255, 255, 0.8);
+	/*margin-right: 20px;*/
+	font-family: Arial, sans-serif;
+	overflow: auto;
+	border-radius: 3px;
+	z-index: 999;
+}
+
+#features {
+	top: 0;
+	height: 200px;
+	margin-top: 20px;
+	width: 250px;
+}
+.info {
+	padding: 6px 8px;
+	font: 14px/16px Arial, Helvetica, sans-serif;
+	background: white;
+	background: rgba(255,255,255,0.8);
+	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	border-radius: 5px;
+}
+.info h4 {
+	margin: 0 0 5px;
+	color: #777;
+}
+.stats-title {
+	font-size:2.5em;
+	padding: 10px 0;
+}
+h4 {
+	font-size:0.8em;
+}
+
+.data-box {
+	border-top: 1px solid gainsboro;
+	border-bottom: 1px solid gainsboro;
+}
+
+#data-panel {
+	overflow: auto;
+}
+
+/*
+	Waffle table
+*/
+
+.waffle-container {
+	display: inline-block;
+	width: 100px;
+}
+
+.waffle-column {
+	/*width: 15px;*/
+	float: left;
+}
+
+.waffle-border {
+	border:1px solid transparent;
+	float: left;
+}
+
+.waffle-box {
+	width:8px;
+	height:8px;
+	background: rgba(49,79,79,0.8);
+}
+.waffle-box-empty {
+	width:8px;
+	height:20px;
+	background: rgba(49,79,79,0.2);
+}
+
+.nav-pills .nav-link.active {
+	background-color: #1F78B4;
+}
+
+.jumbotron {
+    padding: 2rem 2rem;
+}

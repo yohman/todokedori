@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>Todokedori Radiation Map</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- mapbox -->
+	<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js'></script>
+	<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css' rel='stylesheet' />
+
+	<!-- jQuery -->
+	<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+
+	<!-- data table -->
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+
+	<!-- bootstrap -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="styles/style.css">
+
+</head>
+<body>
+
+<div class="container-fluid h-100">
+	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+		<a class="navbar-brand" href="#">Todokedori Radiation Map</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarCollapse">
+			<!-- <ul class="navbar-nav mr-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#">Link</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link disabled" href="#">Disabled</a>
+				</li>
+			</ul>
+			<form class="form-inline mt-2 mt-md-0">
+				<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+			</form> -->
+		</div>
+	</nav>
+
+
+
+	<div class="row h-100" style="padding-top:56px">
+		<!-- left side: map -->
+		<div class="col-sm-9 fill no-padding">
+			<div id="map"></div>
+			<!-- <div class='nav-overlay'></div> -->
+		</div>
+
+		<!-- right side: data -->
+		<div class="col-sm-3" id="data-panel" style="background-color: gainsboro">
+			<h2>マップを動かそう</h2>
+			<table class="table table-dark">
+				<tr>
+					<td>zoom in</td>
+					<td>+</td>
+				</tr>
+				<tr>
+					<td>zoom out</td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td>move</td>
+					<td>arrow keys</td>
+				</tr>
+			</table>
+			<div id="info-panel"></div>
+
+		</div>
+	</div>
+</div>
+
+	<script type="text/javascript" charset="utf8" src="data/data.json"></script>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoieW9obWFuIiwiYSI6IkxuRThfNFkifQ.u2xRJMiChx914U7mOZMiZw';
+// mapboxgl.accessToken = 'pk.eyJ1IjoidWNsYW1hcGJveCIsImEiOiJjZmU3MGI0ZjZkZGQyNjU5OWJhZmQ4YzJhNzNlNmIwOCJ9.kP0-NFKLGF19JSfv2XeD2Q';
+
+
+var map = new mapboxgl.Map({
+	container: 'map',
+	// style: 'mapbox://styles/yohman/cjka8xrk81agr2rmd64iskbuf',
+	// style: 'mapbox://styles/mapbox/streets-v9',
+	// style: 'mapbox://styles/mapbox/light-v9',
+	style: 'mapbox://styles/mapbox/satellite-streets-v9',
+	// style: 'mapbox://styles/uclamapbox/cjd3k6iiq4eg22smk6vq2az80',
+	// style: 'mapbox://styles/yohman/cji3etfkm1jp12rta2mun8d62',
+	center: [140.9949233253293, 37.562979170609964],
+	// pitch: 45,
+	// bearing: -17.6,
+	minZoom: 12,
+	maxZoom: 20,
+	zoom: 14
+});
+
+var mesh_selected;
+var mesh;
+var maxValue = 1;
+
+map.on('load', function() {
+
+	map.addSource('mesh', {
+		'type': 'vector',
+		// 'url': 'mapbox://yohman.cjka8kl5y00pgdasaploknfzb-4p879'
+		// 'url': 'mapbox://yohman.cjko62mke1dbc2wpj6fhvjjao-59sdm' // mesh
+		'url': 'mapbox://yohman.9vkx392k' // mesh
+	});
+
+	// map.addSource('mesh-points', {
+	// 	'type': 'vector',
+	// 	// 'url': 'mapbox://yohman.cjka8kl5y00pgdasaploknfzb-4p879'
+	// 	'url': 'mapbox://yohman.cjko8ftt118yj2qmyb4rwtu6v-6puhl' // mesh
+	// });
+
+	mesh = map.addLayer({
+		"id": "mesh",
+		"type": "fill",
+		"source": "mesh",
+		// "source-layer": "minamisoma_mesh-axlg3a",
+		"source-layer": "todokedori_mesh-3h8bbc",
+		"paint": {
+			// "fill-color": "rgba(0,0,0,0)",
+			// "fill-opacity": 0.5,
+			"fill-outline-color": "rgba(255,255,255,0.5)",
+			"fill-color": ["rgba",
+                0,
+                [ "*", [ "/", ["to-number", ["feature-state", "1cm"]], maxValue], 255],
+                0,
+                0.5]
+		},
+
+	}, 'place-city-sm'); // Place polygon under these labels.
+	//
+	// map.addLayer({
+	// 	id: "mesh-labels",
+	// 	type: "symbol",
+	// 	source: "mesh-points",
+	// 	"source-layer": "minamisoma_mesh_points",
+	// 	// filter: ["has", "point_count"],
+	// 	layout: {
+	// 		"text-field": "{X}"+"-"+"{Y}",
+	// 		"text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+	// 		"text-size": 12,
+	// 	},
+	// 	paint: {
+	// 		"text-color": "white",
+	// 		"text-halo-color": "black",
+	// 	},
+	//
+	// });
+	//
+	//
+	// mesh_selected = map.addLayer({
+	// 	"id": "mesh-selected",
+	// 	"type": "fill",
+	// 	"source": "mesh",
+	// 	"source-layer": "todokedori_mesh-3h8bbc",
+	// 	"paint": {
+	// 		"fill-color": "red",
+	// 		"fill-opacity": 0.2,
+	// 	},
+	// 	"filter": [
+	// 		"all",
+	// 		["==", "X", 10],
+	// 		["==", "Y", 10],
+	// 	]
+	// }, 'place-city-sm'); // Place polygon under these labels.
+	//
+	// var popup = new mapboxgl.Popup();
+	//
+	// // map.on('click', 'mesh', function (e) {
+	// // 	// new mapboxgl.Popup()
+	// // 		popup.setLngLat(e.lngLat)
+	// // 		// .setHTML(e.features[0].properties.name)
+	// // 		.setHTML(e.features[0].properties.X+'-'+e.features[0].properties.Y)
+	// // 		.addTo(map);
+	// // });
+	//
+	// map.on('mousemove', 'mesh', function (e) {
+	// 	// $("#info-panel").html()
+	// 	// console.log(e)
+	// 	html = "<h2>"
+	// 	html += "X = "+e.features[0].properties.X+"<br>Y = "+e.features[0].properties.Y
+	// 	// html += "<table class='table'><tr><td>"
+	// 	// html += "1cm"
+	// 	// html += "</td><td>"
+	// 	// html += e.features[0].properties.1
+	//
+	// 	$("#info-panel").html(html)
+	//
+	// 	// highlight the cell on hover
+	// 	map.setFilter('mesh-selected',
+	// 		[
+	// 			'all',
+	// 			['==','X',e.features[0].properties.X],
+	// 			['==','Y',e.features[0].properties.Y],
+	// 		])
+	// });
+	//
+	// Join the JSON unemployment data with the corresponding vector features where
+    // feautre.id == STATE_ID
+    function setMesh(e) {
+		console.log('setting mesh...')
+		// console.log(e)
+        if (e.sourceId === 'mesh' && e.isSourceLoaded) {
+			console.log('set mesh...')
+            map.off('sourcedata', setMesh);
+            data.forEach(function(row) {
+				// console.log(row["ID"])
+                map.setFeatureState({
+					source: 'mesh',
+					sourceLayer: 'todokedori_mesh-3h8bbc',
+					// sourceLayer: 'mesh',
+					id: row["ID"]
+				}, row);
+            });
+        }
+    }
+
+
+    // if (map.isSourceLoaded('mesh')) {
+	// 	console.log('mesh has been loaded')
+    //     setMesh({ sourceId: 'mesh', isSourceLoaded: true});
+    // } else {
+	// 	console.log('mesh has NOT been loaded')
+    //     map.on('sourcedata', setMesh);
+	// 	// setMesh({ sourceId: 'mesh', isSourceLoaded: true});
+    // }
+});
+
+
+function zoom2grid(building)
+{
+
+	// map.fitBounds(mesh_selected.getBounds(),{padding:20})
+
+	north = mesh_selected.getBounds().getNorth()
+	east = mesh_selected.getBounds().getEast()
+	south = mesh_selected.getBounds().getSouth()
+	west = mesh_selected.getBounds().getWest()
+	// console.log(north)
+	// console.log(east)
+	// console.log(south)
+	// console.log(west)
+	map.fitBounds([
+		[west,south], // Northwest
+		[east,north]  // Southeast
+	],{padding:20});
+	//
+	// console.log(building)
+	// building = building.replace(/-/g," ")
+	//
+	// map.setFilter("mesh-selected",["in","NAM",building])
+}
+//
+// $.getJSON('https://sandbox.idre.ucla.edu/workshops/wp-json/tribe/events/v1/events',function(data){
+// 	console.log(data)
+//
+// 	var html = ''
+// 	$.each(data.events,function(i, val){
+// 		console.log(val)
+// 		var venue = ''
+// 		if(val.venue.venue != undefined)
+// 		{
+// 			venue = val.venue.venue
+// 		}
+// 		venue = venue.replace(/ /g,"-")
+// 		html += '<div class="card" style="margin:10px 0px" onmouseover=zoom2grid(\''+venue+'\')>'
+// 		html += '<div class="card-body"><div class="row">'
+//
+// 		html += '<div class="col-md-8"><h5 class="card-title"><a href="'+val.url+'" target="_blank">'+val.title+'</a></h5><p class="card-muted">'+val.venue.venue+' '+val.start_date+'</p></div>'
+//
+// 		// image
+// 		html += '<div class="col-md-4" style="background=silver">'
+// 		if(val.image.url != undefined)
+// 		{
+// 			html += '<img class="rounded img-fluid" src="'+val.image.url+'">'
+// 		}
+// 		html += '</div>'
+//
+// 		// html += '<p class="card-text">'+val.description+'</p>'
+// 		html += '</div></div></div>'
+// 		// html += '<tr onmouseover=zoom2grid(\''+venue+'\')><td><b>'+val.title+'</b><br>'+val.venue.venue+'</td></tr>'
+// 	})
+// 	html += '</tr></table>'
+//
+// 	$('#info-panel').html(html)
+// })
+//
+// function zoom2grid(building)
+// {
+// 	console.log(building)
+// 	building = building.replace(/-/g," ")
+//
+// 	map.setFilter("mesh-selected",["in","NAM",building])
+// }
+</script>
+
+</body>
+</html>

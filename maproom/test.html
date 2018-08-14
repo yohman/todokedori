@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Join local JSON data with vector tile geometries</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+    </style>
+</head>
+<body>
+
+
+<div id='map'>
+</div>
+
+	<!-- <script type="text/javascript" charset="utf8" src="data/data.json"></script> -->
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoieW9obWFuIiwiYSI6IkxuRThfNFkifQ.u2xRJMiChx914U7mOZMiZw';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/light-v9',
+    // center: [-99.9, 41.5],
+    // zoom: 1
+
+    center: [140.9949233253293, 37.562979170609964],
+    minZoom: 8,
+	maxZoom: 20,
+	zoom: 10
+
+
+});
+
+// Join local JSON data with vector tile geometry
+// USA unemployment rate in 2009
+// Source https://data.bls.gov/timeseries/LNS14000000
+var maxValue = 1;
+
+var data = [
+  {
+    "ID": 1,
+    "1cm": 1,
+  },
+  {
+    "ID": 2,
+    "1cm": 1,
+  },
+  {
+    "ID": 3,
+    "1cm": 1,
+  },
+  // {
+  //   "ID2": "30-12",
+  //   "ID": 3012,
+  //   "X": 30,
+  //   "Y": 12,
+  //   "City": "原町",
+  //   "1cm": 0.08,
+  //   "100cm": 0.19,
+  //   "Date": "2018-04"
+  // },
+]
+//
+// var data = [
+//     // {"ID": "0-1", "unemployment": 13.17},
+//     // {"ID": "0-2", "unemployment": 3.17},
+//     // {"ID": "0-3", "unemployment": 8.17},
+//     // {"ID": "0-4", "unemployment": 7.17},
+//     // {"ID": "0-5", "unemployment": 1.17},
+//     // {"ID": "0-6", "unemployment": 2.17},
+//     // {"ID": "0-7", "unemployment": 9.17},
+//     // {"ID": "0-8", "unemployment": 11.17},
+//     {"ID": 1, "unemployment": 13.17},
+//     {"ID": 2, "unemployment": 9.5},
+//     {"ID": 4, "unemployment": 12.15},
+//     {"ID": 5, "unemployment": 8.99},
+//     {"ID": 6, "unemployment": 11.83},
+//     {"ID": 8, "unemployment": 7.52},
+//     {"ID": 9, "unemployment": 6.44},
+//     {"ID": 10, "unemployment": 5.17},
+//     {"ID": 12, "unemployment": 9.67},
+//     {"ID": 13, "unemployment": 10.64},
+//     {"ID": 15, "unemployment": 12.38},
+//     {"ID": 16, "unemployment": 10.13},
+//     {"ID": 17, "unemployment": 9.58},
+//     {"ID": 18, "unemployment": 10.63},
+//     {"ID": 19, "unemployment": 8.09},
+//     {"ID": 20, "unemployment": 5.93},
+//     {"ID": 21, "unemployment": 9.86},
+//     {"ID": 22, "unemployment": 9.81},
+//     {"ID": 23, "unemployment": 7.82},
+//     {"ID": 24, "unemployment": 8.35},
+//     {"ID": 25, "unemployment": 9.1},
+//     {"ID": 26, "unemployment": 10.69},
+//     {"ID": 27, "unemployment": 11.53},
+//     {"ID": 28, "unemployment": 9.29},
+//     {"ID": 29, "unemployment": 9.94},
+//     {"ID": 30, "unemployment": 9.29},
+//     {"ID": 31, "unemployment": 5.45},
+//     {"ID": 32, "unemployment": 4.21},
+//     {"ID": 33, "unemployment": 4.27},
+//     {"ID": 34, "unemployment": 4.09},
+//     {"ID": 35, "unemployment": 7.83},
+//     {"ID": 36, "unemployment": 8.01},
+//     {"ID": 37, "unemployment": 9.34},
+//     {"ID": 38, "unemployment": 11.23},
+//     {"ID": 39, "unemployment": 7.08},
+//     {"ID": 40, "unemployment": 11.22},
+//     {"ID": 41, "unemployment": 6.2},
+//     {"ID": 42, "unemployment": 9.11},
+//     {"ID": 44, "unemployment": 10.42},
+//     {"ID": 45, "unemployment": 8.89},
+//     {"ID": 46, "unemployment": 11.03},
+//     {"ID": 47, "unemployment": 7.35},
+//     {"ID": 48, "unemployment": 8.92},
+//     {"ID": 49, "unemployment": 7.65},
+//     {"ID": 50, "unemployment": 8.01},
+//     {"ID": 51, "unemployment": 7.62},
+//     {"ID": 53, "unemployment": 7.77},
+//     {"ID": 54, "unemployment": 8.49},
+//     {"ID": 55, "unemployment": 9.42},
+//     {"ID": 56, "unemployment": 7.59}
+// ];
+
+map.on('load', function() {
+
+    // Add source for state polygons hosted on Mapbox, based on US Census Data:
+    // https://www.census.gov/geo/maps-data/data/cbf/cbf_state.html
+    // map.addSource("states", {
+    //     type: "vector",
+    //     url: "mapbox://mapbox.us_census_states_2015"
+    // });
+
+    map.addSource('states', {
+		'type': 'vector',
+		'url': 'mapbox://yohman.9vkx392k' // mesh
+	});
+    // Add layer from the vector tile source with data-driven style
+    // Use a feature-state dependent expression to compute the the green color band based on
+    //  the unemployment percentage
+    map.addLayer({
+        "id": "states-join",
+        "type": "fill",
+        "source": "states",
+        "source-layer": "todokedori_mesh-3h8bbc",
+        "paint": {
+            "fill-color": ["rgba",
+                0,
+                [ "*", [ "/", ["to-number", ["feature-state", "1cm"]], maxValue], 255],
+                0,
+                0.9],
+            "fill-outline-color": "rgba(255,255,255,0.5)",
+
+        }
+    }, 'waterway-label');
+
+    // Join the JSON unemployment data with the corresponding vector features where
+    // feautre.id == ID
+    function setStates(e) {
+        if (e.sourceId === 'states' && e.isSourceLoaded) {
+            map.off('sourcedata', setStates);
+            data.forEach(function(row) {
+                map.setFeatureState({source: 'states', sourceLayer: 'todokedori_mesh-3h8bbc', id: row["ID"]}, row);
+            });
+        }
+    }
+
+    if (map.isSourceLoaded('states')) {
+        console.log('mesh has been loaded')
+        setStates({ sourceId: 'states', isSourceLoaded: true});
+    } else {
+		console.log('mesh has NOT been loaded')
+        map.on('sourcedata', setStates);
+    }
+});
+</script>
+
+</body>
+</html>
