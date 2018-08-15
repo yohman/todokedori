@@ -14,6 +14,7 @@
 ***/
 
 	var todokedori = {};
+	todokedori.data = {};
 
 /***
 
@@ -36,7 +37,21 @@ todokedori.getData = function()
 			preceded with defining the json as a javascript object.
 
 		*/
-		$.getScript( "data/data.json" ),
+		$.getScript( "data/json/2011-04.json" ),
+		$.getScript( "data/json/2011-10.json" ),
+		$.getScript( "data/json/2012-04.json" ),
+		$.getScript( "data/json/2012-10.json" ),
+		$.getScript( "data/json/2013-04.json" ),
+		$.getScript( "data/json/2013-10.json" ),
+		$.getScript( "data/json/2014-04.json" ),
+		$.getScript( "data/json/2014-10.json" ),
+		$.getScript( "data/json/2015-04.json" ),
+		$.getScript( "data/json/2015-10.json" ),
+		$.getScript( "data/json/2016-04.json" ),
+		$.getScript( "data/json/2016-10.json" ),
+		$.getScript( "data/json/2017-04.json" ),
+		$.getScript( "data/json/2017-10.json" ),
+		$.getScript( "data/json/2018-04.json" ),
 		$.getScript( "data/todokedori_mesh3.json" ),
 
 	).done(function(){
@@ -44,7 +59,6 @@ todokedori.getData = function()
 		todokedori.setParameters();
 	});
 }
-
 
 todokedori.setParameters = function()
 {
@@ -87,9 +101,29 @@ todokedori.setParameters = function()
 			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', todokedori.basemapmapoptions),
 			L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', todokedori.basemapmapoptions),
 		]
-		// the basemap
-		todokedori.basemap = todokedori.basemaps[0]
 
+	/*
+
+		Timebar radiation datasets
+
+	*/
+		todokedori.radiationDatasets = [
+			"2011-04",
+			"2011-10",
+			"2012-04",
+			"2012-10",
+			"2013-04",
+			"2013-10",
+			"2014-04",
+			"2014-10",
+			"2015-04",
+			"2015-10",
+			"2016-04",
+			"2016-10",
+			"2017-04",
+			"2017-10",
+			"2018-04",
+		]
 	/*
 
 		Colors for charts
@@ -103,6 +137,17 @@ todokedori.setParameters = function()
 		todokedori.colorPallete = ['#6A3D9A','#FF7F00','#33A02C','#1F78B4','#E31A1C'];
 		todokedori.colorPallete = ['#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2'];
 		todokedori.dataBreaks = [3.919,2.968,2.017,1.541,1.065,0.78 ,0.495,0.304,0.152,0]
+
+	/*
+
+		Default datasets
+
+	*/
+		todokedori.currentRadiationDataset = todokedori.data[todokedori.radiationDatasets[0]]
+		todokedori.radiationDatafield = "100cm"
+		// the basemap
+		todokedori.basemap = todokedori.basemaps[1] //0: light 1: dark 2: satellite
+
 	todokedori.init();
 }
 
@@ -118,6 +163,10 @@ todokedori.init = function()
 	todokedori.map.setView([37.562979170609964, 140.9949233253293], 12);
 	todokedori.map.addLayer(todokedori.basemap);
 	// todokedori.displayLegend();
+
+	// add the timebar
+	todokedori.setTimebar();
+
 	// seed the map
 	todokedori.mapGeoJSON();
 
@@ -136,6 +185,52 @@ todokedori.init = function()
 	})
 }
 
+/*
+
+	Add the timebar
+
+*/
+
+todokedori.setTimebar = function()
+{
+	$("#timebar").ionRangeSlider({
+
+		from: 	0,
+		grid: 	true,
+		step:	1,
+		values:	[
+			"第１期",
+			"第2期",
+			"第3期",
+			"第4期",
+			"第5期",
+			"第6期",
+			"第7期",
+			"第8期",
+			"第9期",
+			"第10期",
+			"第11期",
+			"第12期",
+			"第13期",
+			"第14期",
+			"第15期",
+		],
+		onFinish: function (data) {
+			todokedori.changeRadiationLayer(data.from)
+		},
+	});
+}
+
+/*
+
+	Change radiation data layer
+
+*/
+todokedori.changeRadiationLayer = function(i)
+{
+	todokedori.currentRadiationDataset = todokedori.data[todokedori.radiationDatasets[i]]
+	todokedori.mapGeoJSON()
+}
 
 /*
 
@@ -177,10 +272,13 @@ todokedori.getColor = function(d) {
 }
 
 todokedori.style = function(feature) {
-	// find the 1cm
+
 	var identifyer = "ID"
 
-	var featurejoin = objectFindByKey(todokedori.data,identifyer,feature.properties[identifyer])
+	// join the mesh with the data
+	var featurejoin = objectFindByKey(todokedori.currentRadiationDataset,identifyer,feature.properties[identifyer])
+
+	// if there is no data in the grid, don't color it
 	if(featurejoin == null)
 	{
 		var cm100 = 0;
@@ -188,7 +286,7 @@ todokedori.style = function(feature) {
 	}
 	else
 	{
-		var cm100 = featurejoin["100cm"];
+		var cm100 = featurejoin[todokedori.radiationDatafield];
 		var color = 'rgba(255,255,255,1)'
 	}
 
@@ -214,14 +312,12 @@ function objectFindByKey(array, key, value) {
 
 // things to do for each polygon
 todokedori.onEachFeature = function(feature, layer) {
-	// layer.bindTooltip(feature.properties.ID);
+
 	var data = todokedori.getRadiationDataByID(feature.properties.ID)
 	if(data !== undefined)
 	{
-		var radiationvalue = data["100cm"]
 		var html = '<h2 style="border-bottom:1px solid gainsboro">'+data.City+'</h2 style="border-bottom:1px solid gainsboro">'
-		layer.bindTooltip(html+data["1cm"]+'µSv/h (1cm)<br>'+data["100cm"]+'µSv/h (100cm)');
-		// layer.bindTooltip(radiationvalue);
+		layer.bindTooltip(html+data["1cm"]+' µSv/h (1cm)<br>'+data["100cm"]+' µSv/h (100cm)');
 	}
 	layer.on({
 		mouseover: todokedori.highlightFeature,
@@ -232,7 +328,7 @@ todokedori.onEachFeature = function(feature, layer) {
 
 todokedori.getRadiationDataByID = function(ID)
 {
-	var data = todokedori.data.find(x => x["ID"] === ID);
+	var data = todokedori.currentRadiationDataset.find(x => x["ID"] === ID);
 	// console.log(data)
 	return(data)
 }
@@ -252,7 +348,7 @@ todokedori.highlightFeature = function(e)
 	// console.log(todokedori.highlightedData)
 	// get the data for highlighted polygon
 	var identifyer = "ID"
-	todokedori.highlightedData.data = todokedori.data.find(x => x["ID"] === e.target.feature.properties[identifyer]);
+	todokedori.highlightedData.data = todokedori.currentRadiationDataset.find(x => x["ID"] === e.target.feature.properties[identifyer]);
 	// set the style for highlighted polygon
 	todokedori.highlightedData.setStyle({
 		weight: 2,
@@ -297,11 +393,11 @@ todokedori.displayData = function()
 			+'</tr>'
 			+'<tr>'
 			+'<td>1 cm</td>'
-			+'<td>'+data["1cm"]+'　µSv/h</td>'
+			+'<td>'+data["1cm"]+' µSv/h</td>'
 			+'</tr>'
 			+'<tr>'
 			+'<td>1 00cm</td>'
-			+'<td>'+data["100cm"]+'　µSv/h</td>'
+			+'<td>'+data["100cm"]+' µSv/h</td>'
 			+'</tr>');
 	}
 	else {
