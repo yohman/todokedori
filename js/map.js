@@ -28,7 +28,6 @@ $(document).ready(function() {
 
 todokedori.getData = function()
 {
-	console.log('getting data...')
 	$.when(
 		/*
 
@@ -160,7 +159,7 @@ todokedori.init = function()
 	*/
 	console.log('initializing...')
 
-	todokedori.map.setView([37.562979170609964, 140.9949233253293], 12);
+	todokedori.map.setView([37.6, 141], 11);
 	todokedori.map.addLayer(todokedori.basemap);
 	// todokedori.displayLegend();
 
@@ -171,7 +170,7 @@ todokedori.init = function()
 	todokedori.mapGeoJSON();
 
 	// fit to bounds
-	todokedori.map.fitBounds(todokedori.mapLayer.getBounds())
+	// todokedori.map.fitBounds(todokedori.mapLayer.getBounds())
 
 	// add basemap toggles
 	$('#basemap-light').click(function(){
@@ -316,7 +315,9 @@ todokedori.onEachFeature = function(feature, layer) {
 	var data = todokedori.getRadiationDataByID(feature.properties.ID)
 	if(data !== undefined)
 	{
-		var html = '<h2 style="border-bottom:1px solid gainsboro">'+data.City+'</h2 style="border-bottom:1px solid gainsboro">'
+		var html = '<div style="border-bottom:1px solid gainsboro;font-size:1.2em">'+data.City+'</div>'
+		html += '<div style="background-color:gainsboro;font-size:0.8;border-bottom:1px solid gainsboro">'+data.Date+'</div>'
+
 		layer.bindTooltip(html+data["1cm"]+' µSv/h (1cm)<br>'+data["100cm"]+' µSv/h (100cm)');
 	}
 	layer.on({
@@ -329,7 +330,7 @@ todokedori.onEachFeature = function(feature, layer) {
 todokedori.getRadiationDataByID = function(ID)
 {
 	var data = todokedori.currentRadiationDataset.find(x => x["ID"] === ID);
-	// console.log(data)
+
 	return(data)
 }
 
@@ -339,16 +340,26 @@ todokedori.changeBaseMap = function(i)
 	todokedori.basemap = todokedori.basemaps[i]
 	todokedori.map.addLayer(todokedori.basemap)
 }
-
+var dataarray = []
 todokedori.highlightFeature = function(e)
 {
-	// console.log(e)
 	// set it globally
 	todokedori.highlightedData = e.target;
-	// console.log(todokedori.highlightedData)
+
 	// get the data for highlighted polygon
 	var identifyer = "ID"
 	todokedori.highlightedData.data = todokedori.currentRadiationDataset.find(x => x["ID"] === e.target.feature.properties[identifyer]);
+
+	todokedori.highlightedData.dataarray = []
+	// find other data for the same location
+	$.each(todokedori.radiationDatasets,function(i,val){
+		console.log(todokedori.data[todokedori.radiationDatasets[i]])
+		var thisdataset = todokedori.data[todokedori.radiationDatasets[i]]
+		var thisdata = thisdataset.find(x => x["ID"] === e.target.feature.properties[identifyer])
+		todokedori.highlightedData.dataarray.push(thisdata);
+	})
+	console.log(todokedori.highlightedData.dataarray)
+
 	// set the style for highlighted polygon
 	todokedori.highlightedData.setStyle({
 		weight: 2,
@@ -361,27 +372,55 @@ todokedori.highlightFeature = function(e)
 	todokedori.displayData();
 }
 
-todokedori.displayLegend = function()
-{
-	var html = ''
-	$.each(todokedori.colorPallete,function(i,val){
-		html += '<tr><td style="background-color:'+val+'"> </td>'
-		html += '<td>'+todokedori.dataBreaks[i]+'</td></tr>'
-	})
-	$('#data-legend > tbody:last-child').html(html);
-
-}
 
 todokedori.displayData = function()
 {
 	var data = todokedori.highlightedData.data
-	console.log(data)
 	if(data !== undefined)
 	{
+		// chart
+		$('.ct-chart').show()
+		var labels = []
+		var series = {
+			"1cm": [],
+			"100cm": []
+		}
+
+		$.each(todokedori.highlightedData.dataarray,function(i,val){
+			if(val !== undefined)
+			{
+				// labels.push(val.Date)
+				labels.push('第'+(i+1)+'期')
+				series["1cm"].push(val["1cm"])
+				series["100cm"].push(val["100cm"])
+			}
+
+		})
+		console.log(labels)
+		console.log(series)
+		var chartdata = {
+			// A labels array that can contain any sort of values
+			labels: labels,
+			series: [
+				series["1cm"],
+				series["100cm"]
+			],
+			options: {
+				height:50
+			}
+
+		};
+
+		// Create a new line chart object where as first parameter we pass in a selector
+		// that is resolving to our chart container element. The Second parameter
+		// is the actual chartdata object.
+		new Chartist.Line('.ct-chart', chartdata);
+
+		// table
 		$('#data-table > tbody:last-child').html(
 			'<tr>'
-			+'<td>X-Y</td>'
-			+'<td>'+data.X2+'-'+data.Y2+'</td>'
+			+'<td>ID</td>'
+			+'<td>'+data.ID+'</td>'
 			+'</tr>'
 			+'<tr>'
 			+'<td>場所</td>'
@@ -402,10 +441,22 @@ todokedori.displayData = function()
 	}
 	else {
 		$('#data-table > tbody:last-child').empty()
+		$('.ct-chart').hide()
 	}
 
 }
 
 todokedori.resetHighlight = function(e) {
 	todokedori.mapLayer.resetStyle(e.target);
+}
+
+todokedori.displayLegend = function()
+{
+	var html = ''
+	$.each(todokedori.colorPallete,function(i,val){
+		html += '<tr><td style="background-color:'+val+'"> </td>'
+		html += '<td>'+todokedori.dataBreaks[i]+'</td></tr>'
+	})
+	$('#data-legend > tbody:last-child').html(html);
+
 }

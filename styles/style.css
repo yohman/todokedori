@@ -134,3 +134,8 @@ h4 {
 .jumbotron {
     padding: 2rem 2rem;
 }
+
+.ct-label {
+	color: rgba(255,255,255,0.6);
+	font-size: 0.6em;
+}
