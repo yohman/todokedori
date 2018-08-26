@@ -51,13 +51,29 @@ todokedori.getData = function()
 		$.getScript( "data/json/2017-04.json" ),
 		$.getScript( "data/json/2017-10.json" ),
 		$.getScript( "data/json/2018-04.json" ),
-		$.getScript( "data/todokedori_mesh3.json" ),
+		// $.getScript( "data/todokedori_mesh3.json" ),
+		// $.getScript( "data/todokedori_mesh.topojson" ),
 
 	).done(function(){
 		// now that all the data has loaded...
 		todokedori.setParameters();
 	});
 }
+
+L.TopoJSON = L.GeoJSON.extend({
+  addData: function(jsonData) {
+    if (jsonData.type === 'Topology') {
+      for (key in jsonData.objects) {
+        geojson = topojson.feature(jsonData, jsonData.objects[key]);
+        L.GeoJSON.prototype.addData.call(this, geojson);
+      }
+    }
+    else {
+      L.GeoJSON.prototype.addData.call(this, jsonData);
+    }
+  }
+});
+// Copyright (c) 2013 Ryan Clark
 
 todokedori.setParameters = function()
 {
@@ -82,14 +98,15 @@ todokedori.setParameters = function()
 		todokedori.info = L.control();
 
 		// the geography layer
-		todokedori.mapLayer = L.geoJson();
+		// todokedori.mapLayer = L.geoJson();
+		todokedori.mapLayer = new L.TopoJSON();
 
 		todokedori.basemapmapoptions = {
 			maxZoom: 		20,
 			tileSize: 		512,
 			zoomOffset: 	-1,
-			retina: '@2x',
-			detectRetina: true,
+			// retina: '@2x',
+			// detectRetina: true,
 			attribution: 	'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
 				'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
 				'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
@@ -159,18 +176,13 @@ todokedori.init = function()
 	*/
 	console.log('initializing...')
 
-	todokedori.map.setView([37.6, 141], 11);
+	todokedori.map.setView([37.6, 141], 13);
 	todokedori.map.addLayer(todokedori.basemap);
 	// todokedori.displayLegend();
 
 	// add the timebar
 	todokedori.setTimebar();
 
-	// seed the map
-	todokedori.mapGeoJSON();
-
-	// fit to bounds
-	// todokedori.map.fitBounds(todokedori.mapLayer.getBounds())
 
 	// add basemap toggles
 	$('#basemap-light').click(function(){
@@ -182,7 +194,167 @@ todokedori.init = function()
 	$('#basemap-satellite').click(function(){
 		todokedori.changeBaseMap(2)
 	})
+
+	// add mesh layer
+	$.getJSON('data/todokedori_mesh.topojson')
+	  .done(addTopoData);
+
+	function addTopoData(topoData) {
+		todokedori.mapLayer.addData(topoData);
+		todokedori.mapLayer.addTo(todokedori.map);
+		// seed the map
+		todokedori.mapGeoJSON();
+		// todokedori.mapLayer.setStyle(todokedori.style)
+		// todokedori.mapLayer.eachLayer(todokedori.onEachFeature);
+	}
+
+	// fit to bounds
+	// todokedori.map.fitBounds(todokedori.mapLayer.getBounds())
+
 }
+
+/*
+
+	Map the data
+
+*/
+
+todokedori.mapGeoJSON = function()
+{
+
+	// const todokedori.mapLayer = new L.TopoJSON();
+
+	// $.getJSON('data/todokedori_mesh.topojson')
+	//   .done(addTopoData);
+	todokedori.mapLayer.setStyle(todokedori.style)
+	todokedori.mapLayer.eachLayer(todokedori.onEachFeature);
+
+	// function addTopoData(topoData) {
+	// 	// todokedori.mapLayer.addData(topoData);
+	// 	// todokedori.mapLayer.addTo(todokedori.map);
+	// }
+	// todokedori.mapLayer.eachLayer(todokedori.onEachFeature);
+
+// todokedori.mapLayer.eachLayer(function(){console.log('here')})
+
+	// update geojson
+	// todokedori.geojson = todokedori.currentLayer.geography;
+
+	// clear existing layers
+	// todokedori.mapLayer.clearLayers();
+	//
+	// // map the new layer
+	// todokedori.mapLayer = L.geoJson(todokedori_mesh, {
+	// 	style: todokedori.style,
+	// 	onEachFeature: todokedori.onEachFeature
+	// }).addTo(todokedori.map);
+	// todokedori.mapLayer.bindTooltip(function(e){return e.feature.properties.name})
+
+	// $('#data-subtitle').html(todokedori.currentLayer.title)
+}
+
+// things to do for each polygon
+todokedori.onEachFeature = function(feature, layer) {
+
+	var data = todokedori.getRadiationDataByID(feature.feature.properties.ID)
+	if(data !== undefined)
+	{
+		var html = '<div style="border-bottom:1px solid gainsboro;font-size:1.2em">'+data.City+'</div>'
+		html += '<div style="background-color:gainsboro;font-size:0.8;border-bottom:1px solid gainsboro">'+data.Date+'</div>'
+
+		feature.bindTooltip(html+data["1cm"]+' µSv/h (1cm)<br>'+data["100cm"]+' µSv/h (100cm)');
+	}
+	// feature.setStyle(todokedori.style)
+	feature.on({
+		mouseover: todokedori.highlightFeature,
+		mouseout: todokedori.resetHighlight,
+		// click: todokedori.clickFeature
+	});
+}
+
+todokedori.highlightFeature = function(e)
+{
+	// this.setStyle({
+    //   weight:2,
+    //   opacity: 1
+    // });
+
+	// set it globally
+	todokedori.highlightedData = e.target;
+
+	// get the data for highlighted polygon
+	var identifyer = "ID"
+	todokedori.highlightedData.data = todokedori.currentRadiationDataset.find(x => x["ID"] === e.target.feature.properties[identifyer]);
+
+	todokedori.highlightedData.dataarray = []
+	// find other data for the same location
+	$.each(todokedori.radiationDatasets,function(i,val){
+		var thisdataset = todokedori.data[todokedori.radiationDatasets[i]]
+		var thisdata = thisdataset.find(x => x["ID"] === e.target.feature.properties[identifyer])
+		todokedori.highlightedData.dataarray.push(thisdata);
+	})
+
+	// set the style for highlighted polygon
+	todokedori.highlightedData.setStyle({
+		weight: 2,
+		color: "white",
+		// dashArray: 1,
+		fillOpacity: 0.2
+	});
+
+	// // display the data
+	todokedori.displayData();
+}
+
+todokedori.getColor = function(d) {
+	return d > 3.919  ? '#9e0142' :
+		   d > 2.968  ? '#d53e4f' :
+		   d > 2.017  ? '#f46d43' :
+		   d > 1.541  ? '#fdae61' :
+		   d > 1.065  ? '#fee08b' :
+		   d > 0.78   ? '#e6f598' :
+		   d > 0.495  ? '#abdda4' :
+		   d > 0.304  ? '#66c2a5' :
+		   d > 0.152  ? '#3288bd' :
+		   d > 0      ? '#5e4fa2' :
+			'rgba(255,255,255,0)';
+}
+
+todokedori.style = function(feature) {
+	// console.log(feature)
+	var identifyer = "ID"
+
+	// join the mesh with the data
+	var featurejoin = objectFindByKey(todokedori.currentRadiationDataset,identifyer,feature.properties[identifyer])
+
+	// if there is no data in the grid, don't color it
+	if(featurejoin == null)
+	{
+		var cm100 = 0;
+		var color = 'rgba(255,255,255,0)'
+		var opacity = 0;
+		var weight = 0;
+		var fillOpacity = 0;
+	}
+	else
+	{
+		var cm100 = featurejoin[todokedori.radiationDatafield];
+		var color = 'rgba(255,255,255,1)'
+		var opacity = 1;
+		var weight = 1;
+		var fillOpacity = 0.7;
+	}
+
+	return {
+		fillColor: todokedori.getColor(cm100),
+		weight: weight,
+		opacity: opacity,
+		color: color,
+		// dashArray: '1',
+		fillOpacity: fillOpacity
+	};
+}
+
 
 /*
 
@@ -231,74 +403,6 @@ todokedori.changeRadiationLayer = function(i)
 	todokedori.mapGeoJSON()
 }
 
-/*
-
-	Map the data
-
-*/
-
-todokedori.mapGeoJSON = function()
-{
-
-	// update geojson
-	// todokedori.geojson = todokedori.currentLayer.geography;
-
-	// clear existing layers
-	todokedori.mapLayer.clearLayers();
-
-	// map the new layer
-	todokedori.mapLayer = L.geoJson(todokedori_mesh, {
-		style: todokedori.style,
-		onEachFeature: todokedori.onEachFeature
-	}).addTo(todokedori.map);
-	// todokedori.mapLayer.bindTooltip(function(e){return e.feature.properties.name})
-
-	// $('#data-subtitle').html(todokedori.currentLayer.title)
-}
-
-todokedori.getColor = function(d) {
-	return d > 3.919  ? '#9e0142' :
-		   d > 2.968  ? '#d53e4f' :
-		   d > 2.017  ? '#f46d43' :
-		   d > 1.541  ? '#fdae61' :
-		   d > 1.065  ? '#fee08b' :
-		   d > 0.78   ? '#e6f598' :
-		   d > 0.495  ? '#abdda4' :
-		   d > 0.304  ? '#66c2a5' :
-		   d > 0.152  ? '#3288bd' :
-		   d > 0      ? '#5e4fa2' :
-			'rgba(255,255,255,0)';
-}
-
-todokedori.style = function(feature) {
-
-	var identifyer = "ID"
-
-	// join the mesh with the data
-	var featurejoin = objectFindByKey(todokedori.currentRadiationDataset,identifyer,feature.properties[identifyer])
-
-	// if there is no data in the grid, don't color it
-	if(featurejoin == null)
-	{
-		var cm100 = 0;
-		var color = 'rgba(255,255,255,0)'
-	}
-	else
-	{
-		var cm100 = featurejoin[todokedori.radiationDatafield];
-		var color = 'rgba(255,255,255,1)'
-	}
-
-	return {
-		fillColor: todokedori.getColor(cm100),
-		weight: 1,
-		opacity: 1,
-		color: color,
-		// dashArray: '1',
-		fillOpacity: 0.7
-	};
-}
-
 function objectFindByKey(array, key, value) {
 	for (var i = 0; i < array.length; i++) {
 		if (array[i][key] === value) {
@@ -306,25 +410,6 @@ function objectFindByKey(array, key, value) {
 		}
 	}
 	return null;
-}
-
-
-// things to do for each polygon
-todokedori.onEachFeature = function(feature, layer) {
-
-	var data = todokedori.getRadiationDataByID(feature.properties.ID)
-	if(data !== undefined)
-	{
-		var html = '<div style="border-bottom:1px solid gainsboro;font-size:1.2em">'+data.City+'</div>'
-		html += '<div style="background-color:gainsboro;font-size:0.8;border-bottom:1px solid gainsboro">'+data.Date+'</div>'
-
-		layer.bindTooltip(html+data["1cm"]+' µSv/h (1cm)<br>'+data["100cm"]+' µSv/h (100cm)');
-	}
-	layer.on({
-		mouseover: todokedori.highlightFeature,
-		mouseout: todokedori.resetHighlight,
-		// click: todokedori.clickFeature
-	});
 }
 
 todokedori.getRadiationDataByID = function(ID)
@@ -341,37 +426,6 @@ todokedori.changeBaseMap = function(i)
 	todokedori.map.addLayer(todokedori.basemap)
 }
 var dataarray = []
-todokedori.highlightFeature = function(e)
-{
-	// set it globally
-	todokedori.highlightedData = e.target;
-
-	// get the data for highlighted polygon
-	var identifyer = "ID"
-	todokedori.highlightedData.data = todokedori.currentRadiationDataset.find(x => x["ID"] === e.target.feature.properties[identifyer]);
-
-	todokedori.highlightedData.dataarray = []
-	// find other data for the same location
-	$.each(todokedori.radiationDatasets,function(i,val){
-		console.log(todokedori.data[todokedori.radiationDatasets[i]])
-		var thisdataset = todokedori.data[todokedori.radiationDatasets[i]]
-		var thisdata = thisdataset.find(x => x["ID"] === e.target.feature.properties[identifyer])
-		todokedori.highlightedData.dataarray.push(thisdata);
-	})
-	console.log(todokedori.highlightedData.dataarray)
-
-	// set the style for highlighted polygon
-	todokedori.highlightedData.setStyle({
-		weight: 2,
-		color: "white",
-		// dashArray: 1,
-		fillOpacity: 0.2
-	});
-
-	// // display the data
-	todokedori.displayData();
-}
-
 
 todokedori.displayData = function()
 {
@@ -396,8 +450,7 @@ todokedori.displayData = function()
 			}
 
 		})
-		console.log(labels)
-		console.log(series)
+
 		var chartdata = {
 			// A labels array that can contain any sort of values
 			labels: labels,
@@ -447,7 +500,17 @@ todokedori.displayData = function()
 }
 
 todokedori.resetHighlight = function(e) {
-	todokedori.mapLayer.resetStyle(e.target);
+	console.log(e)
+
+	// set the style for highlighted polygon
+	e.target.setStyle({
+		weight: 1,
+		color: "white",
+		// dashArray: 1,
+		fillOpacity: 0.5
+	});
+
+	// todokedori.mapLayer.resetStyle(e.target);
 }
 
 todokedori.displayLegend = function()
