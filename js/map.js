@@ -176,7 +176,7 @@ todokedori.init = function()
 	*/
 	console.log('initializing...')
 
-	todokedori.map.setView([37.6, 141], 13);
+	todokedori.map.setView([37.6, 141], 11);
 	todokedori.map.addLayer(todokedori.basemap);
 	// todokedori.displayLegend();
 
