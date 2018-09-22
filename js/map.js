@@ -43,14 +43,14 @@ todokedori.getData = function()
 		$.getScript( "data/json/2013-04.json" ),
 		$.getScript( "data/json/2013-10.json" ),
 		$.getScript( "data/json/2014-04.json" ),
-		$.getScript( "data/json/2014-10.json" ),
-		$.getScript( "data/json/2015-04.json" ),
-		$.getScript( "data/json/2015-10.json" ),
-		$.getScript( "data/json/2016-04.json" ),
-		$.getScript( "data/json/2016-10.json" ),
-		$.getScript( "data/json/2017-04.json" ),
-		$.getScript( "data/json/2017-10.json" ),
-		$.getScript( "data/json/2018-04.json" ),
+		$.getScript( "data/json/8-2014-10.json" ),
+		$.getScript( "data/json/9-2015-04.json" ),
+		$.getScript( "data/json/10-2015-10.json" ),
+		$.getScript( "data/json/11-2016-04.json" ),
+		$.getScript( "data/json/12-2016-10.json" ),
+		$.getScript( "data/json/13-2017-04.json" ),
+		$.getScript( "data/json/14-2017-10.json" ),
+		$.getScript( "data/json/15-2018-04.json" ),
 		// $.getScript( "data/todokedori_mesh3.json" ),
 		// $.getScript( "data/todokedori_mesh.topojson" ),
 
@@ -259,7 +259,8 @@ todokedori.onEachFeature = function(feature, layer) {
 	var data = todokedori.getRadiationDataByID(feature.feature.properties.ID)
 	if(data !== undefined)
 	{
-		var html = '<div style="border-bottom:1px solid gainsboro;font-size:1.2em">'+data.City+'</div>'
+		var html = '<div style="border-bottom:1px solid gainsboro;font-size:1.2em">'+data.City+'...</div>'
+		html += data.ID
 		html += '<div style="background-color:gainsboro;font-size:0.8;border-bottom:1px solid gainsboro">'+data.Date+'</div>'
 
 		feature.bindTooltip(html+data["1cm"]+' µSv/h (1cm)<br>'+data["100cm"]+' µSv/h (100cm)');
