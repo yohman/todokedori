@@ -22,9 +22,16 @@
 	<link rel="stylesheet" href="js/rangeSlider/css/ion.rangeSlider.skinFlat.css" />
 
 	<!-- bootstrap -->
-	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<!-- <link rel="stylesheet" href="css/bootstrap.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="js/bootstrap.min.js"></script>
+	<script src="js/bootstrap.min.js"></script> -->
+
+
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>
+
 
 	<!-- charts -->
 	<link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
@@ -48,11 +55,11 @@
 
 <!-- todokedori logo -->
 <img src="images/todokedori_sm.gif" class="img-thumbnail rounded mx-auto d-block" style="position: absolute;top:10px;left: 10px;background-color: rgba(255,255,255,0.5);z-index:999;">
-<!--
-<div class="col-sm-2" id="data-panel" style="position: absolute;top:10px;left: 10px;background-color: rgba(255,255,255,0);z-index:999;">
+
+<div class="col-sm-1" id="data-panel" style="position: absolute;bottom:10px;left: 10px;background-color: rgba(255,255,255,0.5);z-index:999;">
 	<div id="info-panel">
 
-
+		放射線量率
 		<br>
 
 		<table class="table table-striped table-sm" id="data-table" style="background-color:white;display:none;">
@@ -61,14 +68,14 @@
 				<th></th>
 			</tr>
 		</table>
-		<table class="table table-sm small-font" id="data-legend">
+		<table class="table table-borderless table-sm " id="data-legend">
 			<tr>
-				<th></th>
-				<th></th>
+				<td width=40></td>
+				<td>計測値<br>μSv/hour</td>
 			</tr>
 		</table>
 	</div>
-</div> -->
+</div> 
 
 <div class="col-sm-12" align="center" style="position:absolute; bottom:20px;z-index:999;">
 	<div class="col-sm-8" style=" background-color:rgba(0,0,0,0.7);padding:10px;">

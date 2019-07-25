@@ -51,6 +51,8 @@ todokedori.getData = function()
 		$.getScript( "data/json/13-2017-04.json" ),
 		$.getScript( "data/json/14-2017-10.json" ),
 		$.getScript( "data/json/15-2018-04.json" ),
+		$.getScript( "data/json/16-2018-10.json" ),
+		$.getScript( "data/json/17-2019-04.json" ),
 		// $.getScript( "data/todokedori_mesh3.json" ),
 		// $.getScript( "data/todokedori_mesh.topojson" ),
 
@@ -100,6 +102,7 @@ todokedori.setParameters = function()
 		// the geography layer
 		// todokedori.mapLayer = L.geoJson();
 		todokedori.mapLayer = new L.TopoJSON();
+		todokedori.cityLayer = new L.TopoJSON();
 
 		todokedori.basemapmapoptions = {
 			maxZoom: 		20,
@@ -139,6 +142,8 @@ todokedori.setParameters = function()
 			"2017-04",
 			"2017-10",
 			"2018-04",
+			"2018-10",
+			"2019-04",
 		]
 	/*
 
@@ -159,7 +164,8 @@ todokedori.setParameters = function()
 		Default datasets
 
 	*/
-		todokedori.currentRadiationDataset = todokedori.data[todokedori.radiationDatasets[0]]
+		todokedori.currentRadiationDatasetPosition = todokedori.radiationDatasets.length-1
+		todokedori.currentRadiationDataset = todokedori.data[todokedori.radiationDatasets[todokedori.currentRadiationDatasetPosition]]
 		todokedori.radiationDatafield = "100cm"
 		// the basemap
 		todokedori.basemap = todokedori.basemaps[1] //0: light 1: dark 2: satellite
@@ -178,7 +184,18 @@ todokedori.init = function()
 
 	todokedori.map.setView([37.6, 141], 11);
 	todokedori.map.addLayer(todokedori.basemap);
-	// todokedori.displayLegend();
+	todokedori.displayLegend();
+
+	// add circles around F1 (10km, 20km, 30km)
+	var circleStyle = {
+		"color": "blue",
+		"weight": 2,
+		"opacity": 0.5,
+		"fillOpacity": 0
+	};
+	L.circle([37.422116, 141.030259], 10000,circleStyle).addTo(todokedori.map);
+	L.circle([37.422116, 141.030259], 20000,circleStyle).addTo(todokedori.map);
+	L.circle([37.422116, 141.030259], 30000,circleStyle).addTo(todokedori.map);
 
 	// add the timebar
 	todokedori.setTimebar();
@@ -195,22 +212,43 @@ todokedori.init = function()
 		todokedori.changeBaseMap(2)
 	})
 
-	// add mesh layer
-	$.getJSON('data/todokedori_mesh.topojson')
-	  .done(addTopoData);
 
-	function addTopoData(topoData) {
-		todokedori.mapLayer.addData(topoData);
-		todokedori.mapLayer.addTo(todokedori.map);
-		// seed the map
-		todokedori.mapGeoJSON();
-		// todokedori.mapLayer.setStyle(todokedori.style)
-		// todokedori.mapLayer.eachLayer(todokedori.onEachFeature);
-	}
+	var cityStyle = {
+		"color": "white",
+		"weight": 1,
+		"opacity": 1,
+		"fillOpacity": 0
+	};
+
+	// add Fukushima Cities layer
+	$.getJSON('data/gis/todokedori-cities.topojson')
+	  .done(function(topoData){
+			todokedori.cityLayer.addData(topoData);
+			todokedori.cityLayer.addTo(todokedori.map);
+			todokedori.cityLayer.setStyle(cityStyle)
+			// todokedori.mapLayer.setStyle(todokedori.style)
+
+			// add mesh layer
+			$.getJSON('data/todokedori_mesh.topojson')
+			  .done(addTopoData);
+
+
+			function addTopoData(topoData) {
+				todokedori.mapLayer.addData(topoData);
+				todokedori.mapLayer.addTo(todokedori.map);
+				// seed the map
+				todokedori.mapGeoJSON();
+				// todokedori.mapLayer.setStyle(todokedori.style)
+				// todokedori.mapLayer.eachLayer(todokedori.onEachFeature);
+			}
+
+
+	  });
+
 
 	// fit to bounds
 	// todokedori.map.fitBounds(todokedori.mapLayer.getBounds())
-
+	todokedori.changeRadiationLayer(todokedori.radiationDatasets.length-1)
 }
 
 /*
@@ -259,7 +297,7 @@ todokedori.onEachFeature = function(feature, layer) {
 	var data = todokedori.getRadiationDataByID(feature.feature.properties.ID)
 	if(data !== undefined)
 	{
-		var html = '<div style="border-bottom:1px solid gainsboro;font-size:1.2em">'+data.City+'...</div>'
+		var html = '<div style="border-bottom:1px solid gainsboro;font-size:1.2em">'+data.City+'</div>'
 		html += data.ID
 		html += '<div style="background-color:gainsboro;font-size:0.8;border-bottom:1px solid gainsboro">'+data.Date+'</div>'
 
@@ -362,9 +400,10 @@ todokedori.style = function(feature) {
 	Add the timebar
 
 */
-
+var timebar = ''
 todokedori.setTimebar = function()
 {
+	console.log('in time bar...')
 	$("#timebar").ionRangeSlider({
 
 		from: 	0,
@@ -386,11 +425,16 @@ todokedori.setTimebar = function()
 			"第13期",
 			"第14期",
 			"第15期",
+			"第16期",
+			"第17期",
 		],
 		onFinish: function (data) {
+			console.log('timebar...')
+			console.log(data)
 			todokedori.changeRadiationLayer(data.from)
 		},
 	});
+	timebar = $("#timebar").data("ionRangeSlider");
 }
 
 /*
@@ -400,7 +444,17 @@ todokedori.setTimebar = function()
 */
 todokedori.changeRadiationLayer = function(i)
 {
-	todokedori.currentRadiationDataset = todokedori.data[todokedori.radiationDatasets[i]]
+	console.log('changing radiation data to '+i)
+	timebar.update({from:i})
+	todokedori.currentRadiationDatasetPosition = i
+	todokedori.currentRadiationDataset = todokedori.data[todokedori.radiationDatasets[todokedori.currentRadiationDatasetPosition]]
+	todokedori.mapGeoJSON()
+}
+
+todokedori.nextRadiationLayer = function()
+{
+	todokedori.currentRadiationDatasetPosition = todokedori.currentRadiationDatasetPosition +1
+	todokedori.currentRadiationDataset = todokedori.data[todokedori.radiationDatasets[todokedori.currentRadiationDatasetPosition]]
 	todokedori.mapGeoJSON()
 }
 
@@ -518,9 +572,23 @@ todokedori.displayLegend = function()
 {
 	var html = ''
 	$.each(todokedori.colorPallete,function(i,val){
+		if(i == todokedori.colorPallete.length-1)
+		{
+			rightside = '未満'
+		}
+		else if (i == 0)
+		{
+			rightside = '以上'
+		}
+		else
+		{
+			rightside = '~'+todokedori.dataBreaks[i-1]
+		}
+
 		html += '<tr><td style="background-color:'+val+'"> </td>'
-		html += '<td>'+todokedori.dataBreaks[i]+'</td></tr>'
+		html += '<td>'+todokedori.dataBreaks[i]+rightside+'</td></tr>'
 	})
-	$('#data-legend > tbody:last-child').html(html);
+	$('#data-legend > tbody:last-child').append(html);
+	console.log(html)
 
 }
