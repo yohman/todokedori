@@ -32,7 +32,7 @@ todokedori.getData = function()
 		/*
 
 			Data json files:
-			New datasets need to added as json files. Note that the json file is
+			New datasets need to be added as json files. Note that the json file is
 			preceded with defining the json as a javascript object.
 
 		*/
@@ -53,6 +53,7 @@ todokedori.getData = function()
 		$.getScript( "data/json/15-2018-04.json" ),
 		$.getScript( "data/json/16-2018-10.json" ),
 		$.getScript( "data/json/17-2019-04.json" ),
+		$.getScript( "data/json/2022-12.json" ),
 		// $.getScript( "data/todokedori_mesh3.json" ),
 		// $.getScript( "data/todokedori_mesh.topojson" ),
 
@@ -155,7 +156,7 @@ todokedori.setParameters = function()
 		red: 	#E31A1C
 
 	*/
-		todokedori.colorPallete = ['#d7191c','#fdae61','#ffffbf','#a6d96a','#1a9641'];
+		todokedori.colorPallete = ['#d73027','#fc8d59','#fee08b','#ffffbf','#d9ef8b','#91cf60','#1a9850'];
 
 
 		// todokedori.colorPallete = ['#6A3D9A','#FF7F00','#33A02C','#1F78B4','#E31A1C'];
@@ -350,16 +351,13 @@ todokedori.highlightFeature = function(e)
 }
 
 todokedori.getColor = function(d) {
-	return d > 3.919  ? '#9e0142' :
-		   d > 2.968  ? '#d53e4f' :
-		   d > 2.017  ? '#f46d43' :
-		   d > 1.541  ? '#fdae61' :
-		   d > 1.065  ? '#fee08b' :
-		   d > 0.78   ? '#e6f598' :
-		   d > 0.495  ? '#abdda4' :
-		   d > 0.304  ? '#66c2a5' :
-		   d > 0.152  ? '#3288bd' :
-		   d > 0      ? '#5e4fa2' :
+	return d > 3.81  ? '#d73027' :
+		   d > 2.85  ? '#fc8d59' :
+		   d > 1.90  ? '#fee08b' :
+		   d > 0.95  ? '#ffffbf' :
+		   d > 0.48  ? '#d9ef8b' :
+		   d > 0.19   ? '#91cf60' :
+		   d > 0      ? '#1a9850' :
 			'rgba(255,255,255,0)';
 }
 
@@ -431,6 +429,7 @@ todokedori.setTimebar = function()
 			"第15期",
 			"第16期",
 			"第17期",
+			"第18期",
 		],
 		onFinish: function (data) {
 			console.log('timebar...')
