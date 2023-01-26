@@ -145,6 +145,7 @@ todokedori.setParameters = function()
 			"2018-04",
 			"2018-10",
 			"2019-04",
+			"2022-12",
 		]
 	/*
 
