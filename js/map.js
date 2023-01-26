@@ -155,9 +155,13 @@ todokedori.setParameters = function()
 		red: 	#E31A1C
 
 	*/
-		todokedori.colorPallete = ['#6A3D9A','#FF7F00','#33A02C','#1F78B4','#E31A1C'];
-		todokedori.colorPallete = ['#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2'];
-		todokedori.dataBreaks = [3.919,2.968,2.017,1.541,1.065,0.78 ,0.495,0.304,0.152,0]
+		todokedori.colorPallete = ['#d7191c','#fdae61','#ffffbf','#a6d96a','#1a9641'];
+
+
+		// todokedori.colorPallete = ['#6A3D9A','#FF7F00','#33A02C','#1F78B4','#E31A1C'];
+		// todokedori.colorPallete = ['#9e0142','#d53e4f','#f46d43','#fdae61','#fee08b','#e6f598','#abdda4','#66c2a5','#3288bd','#5e4fa2'];
+		todokedori.dataBreaks = [3.81,2.85,1.9,0.95,0.48,0.19,0] // new as of 2023
+		// todokedori.dataBreaks = [3.919,2.968,2.017,1.541,1.065,0.78 ,0.495,0.304,0.152,0]
 
 	/*
 
